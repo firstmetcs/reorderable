@@ -29,10 +29,12 @@ class _ReorderableGridItem extends _ReorderableItem {
   });
 
   @override
-  _ReorderableItemState<_ReorderableItem> createState() => _ReorderableGridItemState();
+  _ReorderableItemState<_ReorderableItem> createState() =>
+      _ReorderableGridItemState();
 }
 
-class _ReorderableGridItemState extends _ReorderableItemState<_ReorderableGridItem> {
+class _ReorderableGridItemState
+    extends _ReorderableItemState<_ReorderableGridItem> {
   @override
   Offset _calculateNewTargetOffset(int gapIndex, double gapExtent, bool reverse,
       {Map<Key, Offset>? oldOffsets, Map<Key, Offset>? offsets}) {
@@ -59,10 +61,12 @@ class SliverReorderableGrid extends SliverReorderable {
   final SliverGridDelegate gridDelegate;
 
   @override
-  SliverReorderableState<SliverReorderable> createState() => _SliverReorderableGridState();
+  SliverReorderableState<SliverReorderable> createState() =>
+      _SliverReorderableGridState();
 }
 
-class _SliverReorderableGridState extends SliverReorderableState<SliverReorderableGrid> {
+class _SliverReorderableGridState
+    extends SliverReorderableState<SliverReorderableGrid> {
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasOverlay(context));
@@ -78,7 +82,8 @@ class _SliverReorderableGridState extends SliverReorderableState<SliverReorderab
   }
 
   @override
-  _ReorderableItem _createReorderableItem(Key key, int index, BuildContext overlayContext, Widget child) {
+  _ReorderableItem _createReorderableItem(
+      Key key, int index, BuildContext overlayContext, Widget child) {
     return _ReorderableGridItem(
       key: _ReorderableItemGlobalKey(key, index, this),
       index: index,
@@ -277,11 +282,13 @@ class ReorderableGrid extends StatefulWidget {
     assert(() {
       if (result == null) {
         throw FlutterError.fromParts(<DiagnosticsNode>[
-          ErrorSummary('ReorderableGrid.of() called with a context that does not contain a ReorderableGrid.'),
+          ErrorSummary(
+              'ReorderableGrid.of() called with a context that does not contain a ReorderableGrid.'),
           ErrorDescription(
             'No ReorderableGrid ancestor could be found starting from the context that was passed to ReorderableGrid.of().',
           ),
-          ErrorHint('This can happen when the context provided is from the same StatefulWidget that '
+          ErrorHint(
+              'This can happen when the context provided is from the same StatefulWidget that '
               'built the ReorderableGrid.'),
           context.describeElement('The context used was'),
         ]);
@@ -348,7 +355,10 @@ class ReorderableGridState extends State<ReorderableGrid> {
     required MultiDragGestureRecognizer recognizer,
   }) {
     final state = _globalKey.currentState!;
-    state.startItemDragReorder(index: index, event: event, recognizer: recognizer..onStart = state._dragStart);
+    state.startItemDragReorder(
+        index: index,
+        event: event,
+        recognizer: recognizer..onStart = state._dragStart);
   }
 
   /// Cancel any item drag in progress.
