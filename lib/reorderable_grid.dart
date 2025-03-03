@@ -114,8 +114,13 @@ class _SliverReorderableGridState
 
     var newIndex = _insertIndex!;
     for (final item in _items.values) {
+      if (item._offsetAnimation != null || item.index == _dragIndex!) {
+        continue;
+      }
+
       final renderBox = item.context.findRenderObject() as RenderBox;
-      final rect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
+      final rect =
+          (renderBox.localToGlobal(Offset.zero) + item.offset) & renderBox.size;
       if (rect.contains(_dragInfo!.dragPosition)) {
         newIndex = item.index;
         break;

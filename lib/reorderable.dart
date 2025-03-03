@@ -917,33 +917,6 @@ double _sizeExtent(Size size, Axis scrollDirection) {
   }
 }
 
-double _offsetExtent(Offset offset, Axis scrollDirection) {
-  switch (scrollDirection) {
-    case Axis.horizontal:
-      return offset.dx;
-    case Axis.vertical:
-      return offset.dy;
-  }
-}
-
-Offset _extentOffset(double extent, Axis scrollDirection) {
-  switch (scrollDirection) {
-    case Axis.horizontal:
-      return Offset(extent, 0.0);
-    case Axis.vertical:
-      return Offset(0.0, extent);
-  }
-}
-
-Offset _restrictAxis(Offset offset, Axis scrollDirection) {
-  switch (scrollDirection) {
-    case Axis.horizontal:
-      return Offset(offset.dx, 0.0);
-    case Axis.vertical:
-      return Offset(0.0, offset.dy);
-  }
-}
-
 // A global key that takes its identity from the object and uses a value of a
 // particular type to identify itself.
 //
