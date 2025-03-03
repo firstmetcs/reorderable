@@ -34,21 +34,12 @@ class _ReorderableGridItem extends _ReorderableItem {
 
 class _ReorderableGridItemState extends _ReorderableItemState<_ReorderableGridItem> {
   @override
-  Offset _calculateNewTargetOffset(int gapIndex, double gapExtent, bool reverse) {
-    final int minPos = min(_reorderableState._dragIndex!, _reorderableState._insertIndex!);
-    final int maxPos = max(_reorderableState._dragIndex!, _reorderableState._insertIndex!);
-
-    if (index < minPos || index > maxPos) return Offset.zero;
-
-    final direction = _reorderableState._insertIndex! > _reorderableState._dragIndex! ? -1 : 1;
-    return _itemOffsetAt(index + direction) - _itemOffsetAt(index);
-  }
-
-  Offset _itemOffsetAt(int index) {
-    final renderBox = _reorderableState._items[index]?.context.findRenderObject() as RenderBox?;
-    if (renderBox == null) return Offset.zero;
-    final parentRenderObject = context.findRenderObject() as RenderBox;
-    return parentRenderObject.globalToLocal(renderBox.localToGlobal(Offset.zero));
+  Offset _calculateNewTargetOffset(int gapIndex, double gapExtent, bool reverse,
+      {Map<Key, Offset>? oldOffsets, Map<Key, Offset>? offsets}) {
+    if (oldOffsets == null || offsets == null) {
+      return Offset.zero;
+    }
+    return offsets[widget.child.key]! - oldOffsets[widget.child.key]!;
   }
 }
 
@@ -125,21 +116,36 @@ class _SliverReorderableGridState extends SliverReorderableState<SliverReorderab
         break;
       }
     }
+    final gridDelegate = widget.gridDelegate as HomeGridDelegate;
+
+    final List<GridTileOrigin> origins = List<GridTileOrigin>.from(
+        (widget.gridDelegate as HomeGridDelegate).origins);
+
+    final oldOffset = origins.toPosition(gridDelegate.crossAxisCount,
+        gridDelegate.mainAxisSpacing, gridDelegate.crossAxisStride!);
 
     if (newIndex != _insertIndex) {
       _insertIndex = newIndex;
+      final fromIndex = _dragIndex!;
+      final toIndex = _insertIndex!;
+      final origin = origins.removeAt(fromIndex);
+      origins.insert(toIndex, origin);
+
+      final offsets = origins.toPosition(gridDelegate.crossAxisCount,
+          gridDelegate.mainAxisSpacing, gridDelegate.crossAxisStride!);
       for (final item in _items.values) {
-        if (item.index == _dragIndex! || !item.mounted) {
+        if (!item.mounted) {
           continue;
         }
-        item.updateForGap(newIndex, gapExtent, true, _reverse);
+        item.updateForGap(newIndex, gapExtent, true, _reverse,
+            oldOffsets: oldOffset, offsets: offsets);
       }
     }
   }
 
   void _dragEnd(_DragInfo item) {
     setState(() {
-      _finalDropPosition = _itemOffsetAt(_insertIndex!);
+      _finalDropPosition = _itemOffsetAt(_dragIndex!);
     });
     widget.onReorderEnd?.call(_insertIndex!);
   }
@@ -388,4 +394,105 @@ class ReorderableGridState extends State<ReorderableGrid> {
       ],
     );
   }
+}
+
+class HomeGridDelegate extends SpanableSliverGridDelegate {
+  HomeGridDelegate(List<GridTileOrigin> list)
+      : super(4, mainAxisSpacing: 12.0, crossAxisSpacing: 12.0, origins: list);
+
+  @override
+  bool shouldRelayout(HomeGridDelegate oldDelegate) {
+    return super.shouldRelayout(oldDelegate) ||
+        !listEquals(oldDelegate.origins, origins);
+  }
+}
+
+extension on List<GridTileOrigin> {
+  Map<Key, Offset> toPosition(
+    int crossAxisCount,
+    double mainAxisSpacing,
+    double stride,
+  ) {
+    int computeCrossAxisCellCount(
+      GridTileOrigin childParentData,
+      int crossAxisCount,
+    ) {
+      return min(
+        childParentData.crossAxisSpan,
+        crossAxisCount,
+      );
+    }
+
+    // List<Offset> res = List<Offset>.filled(length, Offset.zero);
+    Map<Key, Offset> res = {};
+
+    final List<double> offsets = List<double>.filled(crossAxisCount, 0.0);
+
+    for (int i = 0; i < length; i++) {
+      final int crossAxisCellCount = computeCrossAxisCellCount(
+        this[i],
+        crossAxisCount,
+      );
+
+      final _TileOrigin origin = _findBestCandidate(offsets, crossAxisCellCount,
+          i, this[i].mainAxisExtent, mainAxisSpacing);
+      final double mainAxisOffset = origin.mainAxisOffset;
+      final double crossAxisOffset = origin.crossAxisIndex * stride;
+      final Offset offset = Offset(crossAxisOffset, mainAxisOffset);
+
+      res[this[i].key] = offset;
+
+      // Don't forget to update the offsets.
+      final double nextTileOffset =
+          mainAxisOffset + this[i].mainAxisExtent + mainAxisSpacing;
+      for (int i = 0; i < crossAxisCellCount; i++) {
+        offsets[origin.crossAxisIndex + i] = nextTileOffset;
+      }
+    }
+
+    return res;
+  }
+}
+
+_TileOrigin _findBestCandidate(List<double> offsets, int crossAxisCount,
+    int index, double mainAxisExtent, double mainAxisSpacing) {
+  final int length = offsets.length;
+  _TileOrigin bestCandidate = const _TileOrigin(0, double.infinity);
+  for (int i = 0; i < length; i++) {
+    final double offset = offsets[i];
+    if (_lessOrNearEqual(bestCandidate.mainAxisOffset, offset)) {
+      // The potential candidate is already higher than the current best.
+      continue;
+    }
+
+    int start = 0;
+    int span = 0;
+    for (int j = 0;
+        span < crossAxisCount &&
+            j < length &&
+            length - j >= crossAxisCount - span;
+        j++) {
+      if (_lessOrNearEqual(offsets[j], offset)) {
+        span++;
+        if (span == crossAxisCount) {
+          bestCandidate = _TileOrigin(start, offset);
+        }
+      } else {
+        start = j + 1;
+        span = 0;
+      }
+    }
+  }
+  return bestCandidate;
+}
+
+bool _lessOrNearEqual(double a, double b) {
+  return a < b || (a - b).abs() < precisionErrorTolerance;
+}
+
+class _TileOrigin {
+  const _TileOrigin(this.crossAxisIndex, this.mainAxisOffset);
+
+  final int crossAxisIndex;
+  final double mainAxisOffset;
 }

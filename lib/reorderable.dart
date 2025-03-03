@@ -1,14 +1,16 @@
 library reorderable_plus;
 
-import 'dart:math';
+import 'dart:math' hide log;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'flutter_spanablegrid.dart';
+
 part 'reorderable_grid.dart';
-part 'reorderable_list.dart';
 
 /// A callback used by [SliverReorderable] to report that a list item has moved
 /// to a new position in the list.
@@ -443,7 +445,7 @@ abstract class SliverReorderableState<T extends SliverReorderable> extends State
 
   Offset _itemOffsetAt(int index) {
     final itemRenderBox = _items[index]!.context.findRenderObject()! as RenderBox;
-    return itemRenderBox.localToGlobal(Offset.zero);
+    return itemRenderBox.localToGlobal(Offset.zero) + _items[index]!._targetOffset;
   }
 
   _ReorderableItem _createReorderableItem(Key key, int index, BuildContext overlayContext, Widget child);
@@ -552,10 +554,12 @@ abstract class _ReorderableItemState<T extends _ReorderableItem> extends State<T
     return _targetOffset;
   }
 
-  Offset _calculateNewTargetOffset(int gapIndex, double gapExtent, bool reverse);
+  Offset _calculateNewTargetOffset(int gapIndex, double gapExtent, bool reverse,
+      {Map<Key, Offset>? oldOffsets, Map<Key, Offset>? offsets});
 
-  void updateForGap(int gapIndex, double gapExtent, bool animate, bool reverse) {
-    final newTargetOffset = _calculateNewTargetOffset(gapIndex, gapExtent, reverse);
+  void updateForGap(int gapIndex, double gapExtent, bool animate, bool reverse,
+      {Map<Key, Offset>? oldOffsets, Map<Key, Offset>? offsets}) {
+    final newTargetOffset = _calculateNewTargetOffset(gapIndex, gapExtent, reverse, oldOffsets: oldOffsets, offsets: offsets);
     if (newTargetOffset != _targetOffset) {
       _targetOffset = newTargetOffset;
       if (animate) {
