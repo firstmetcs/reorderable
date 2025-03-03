@@ -44,7 +44,7 @@ class SpanableSliverGridLayout extends SliverGridLayout {
 
   _CoordinateOffset _findOffset(int index) {
     if (index < offsets.length) {
-      Offset offset = offsets[index];
+      final Offset offset = offsets[index];
       return _CoordinateOffset(offset.dy, offset.dx);
     } else {
       return _CoordinateOffset(0, 0);
@@ -78,9 +78,9 @@ class SpanableSliverGridLayout extends SliverGridLayout {
 
   @override
   SliverGridGeometry getGeometryForChildIndex(int index) {
-    var span = origins[index].crossAxisSpan;
-    var mainAxisExtent = origins[index].mainAxisExtent;
-    var offset = _findOffset(index);
+    final int span = origins[index].crossAxisSpan;
+    final double mainAxisExtent = origins[index].mainAxisExtent;
+    final _CoordinateOffset offset = _findOffset(index);
 
     return SliverGridGeometry(
       scrollOffset: offset.main,
@@ -92,7 +92,9 @@ class SpanableSliverGridLayout extends SliverGridLayout {
 
   @override
   double computeMaxScrollOffset(int childCount) {
-    if (childCount <= 0) return 0.0;
+    if (childCount <= 0) {
+      return 0.0;
+    }
 
     double max = 0;
     for (int i = 0; i < origins.length; i++) {
@@ -178,7 +180,7 @@ extension on List<GridTileOrigin> {
       );
     }
 
-    List<Offset> res = List<Offset>.filled(length, Offset.zero);
+    final List<Offset> res = List<Offset>.filled(length, Offset.zero);
 
     final List<double> offsets = List<double>.filled(crossAxisCount, 0.0);
 

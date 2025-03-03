@@ -1,27 +1,384 @@
-include: package:flutter_lints/flutter.yaml
-
-# Additional information about this file can be found at
+# Specify analysis options.
+#
+# For a list of lints, see: https://dart.dev/lints
+# For guidelines on configuring static analysis, see:
 # https://dart.dev/guides/language/analysis-options
+#
+# There are other similar analysis options files in the flutter repos,
+# which should be kept in sync with this file:
+#
+#   - analysis_options.yaml (this file)
+#   - https://github.com/flutter/engine/blob/main/analysis_options.yaml
+#   - https://github.com/flutter/packages/blob/main/analysis_options.yaml
+#
+# This file contains the analysis options used for code in the flutter/flutter
+# repository.
+
+analyzer:
+  language:
+    # https://dart.cn/tools/analysis
+    # 类型推理引擎不再将 dynamic 进行隐式类型转换
+    strict-casts: true
+    # 当类型推理引擎无法确定静态类型时，不再选择dynamic 类型
+    strict-inference: true
+    # 强制类型安全 由于省略类型参数而无法确定静态类型时，不再选择dynamic 类型
+    strict-raw-types: true
+  errors:
+    # allow self-reference to deprecated members (we do this because otherwise we have
+    # to annotate every member in every test, assert, etc, when we deprecate something)
+    deprecated_member_use_from_same_package: ignore
+    avoid_print: error
+    always_declare_return_types: error
+    always_specify_types: error
+    avoid_dynamic_calls: error
+    annotate_overrides: error
+    use_key_in_widget_constructors: error
+    avoid_returning_null_for_void: error
+    avoid_shadowing_type_parameters: error
+    avoid_unnecessary_containers: error
+    avoid_void_async: error
+    await_only_futures: error
+    cancel_subscriptions: error
+    cast_nullable_to_non_nullable: error
+    collection_methods_unrelated_type: error
+    depend_on_referenced_packages: error
+    no_duplicate_case_values: error
+    no_self_assignments: error
+    no_logic_in_create_state: error
+    null_check_on_nullable_type_parameter: error
+    overridden_fields: error
+    prefer_const_constructors: error
+    prefer_const_constructors_in_immutables: error
+    prefer_const_literals_to_create_immutables: error
+    null_closures: error
+    prefer_typing_uninitialized_variables: error
+    sized_box_for_whitespace: error
+    test_types_in_equals: error
+    throw_in_finally: error
+    unnecessary_null_aware_assignments: error
+    unreachable_from_main: error
+    use_colored_box: error
+    use_build_context_synchronously: error
+    unnecessary_statements: error
+
+  exclude:
+    - "bin/cache/**"
+    # Ignore protoc generated files
+    - "dev/conductor/lib/proto/*"
+    - "**/*.g.dart"
+
 linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at
-  # https://dart-lang.github.io/linter/lints/index.html.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
   rules:
-    avoid_void_async: true
-    prefer_final_locals: true
-    directives_ordering: true
-    prefer_relative_imports: true
-    omit_local_variable_types: true
-    prefer_const_constructors: true
-    use_key_in_widget_constructors: true
-    lines_longer_than_80_chars: false
-    avoid_types_on_closure_parameters: true
-    depend_on_referenced_packages: false
+    # This list is derived from the list of all available lints located at
+    # https://github.com/dart-lang/linter/blob/main/example/all.yaml
+
+    #        ---------必要的规则---------
+    # 声明方法或函数时，始终要指定返回类型
+    - always_declare_return_types
+    # 明确指定类型。当指定未知类型和省略类型时，避免使用var。如果明确表示类型未知，则使用dynamic
+    - always_specify_types
+    # 定义函数参数、泛型时，避免直接使用dynamic的对象，需指定明确类型
+    - avoid_dynamic_calls
+    # 使用父类参数要用overrides修饰
+    - annotate_overrides
+    # 不使用print
+    - avoid_print
+    # 在组件的构造方法中一定要使用key，并调用super将key传入super的初始化方法.
+    - use_key_in_widget_constructors
+    # 声明void返回值的函数不要返回null
+    - avoid_returning_null_for_void
+    # 类型参数不要重复使用,引起歧义
+    - avoid_shadowing_type_parameters
+    # 不要使用没有必要的containers 会造成Widget树臃肿
+    - avoid_unnecessary_containers
+    # 异步方法不要直接返回void 返回Future<void>
+    - avoid_void_async
+    # 避免使用await修饰非Future，null可以作为特殊情况
+    - await_only_futures
+    # StreamSubscription一定要记得cancel
+    - cancel_subscriptions
+    # 不要将可空值？ as成不可空值
+    - cast_nullable_to_non_nullable
+    # 使用集合的方法不要传入与集合类型不相符的参数
+    - collection_methods_unrelated_type
+    # 依赖的库应该在dependcies中指定版本号
+    - depend_on_referenced_packages
+    # 使用有效的正则语法
+    - valid_regexps
+    # 条件导入中，不要使用不存在的路径
+    - conditional_uri_does_not_exist
+    # 重写==运算符时要同步重写hashCode
+    - hash_and_equals
+    # Switch case 中case不要重复
+    - no_duplicate_case_values
+    # 不要将变量赋值给自身
+    - no_self_assignments
+    # createState()中不要写逻辑代码
+    - no_logic_in_create_state
+    # 不要对可能为空的对象使用 ！
+    - null_check_on_nullable_type_parameter
+    # 不要覆盖父类的属性
+    - overridden_fields
+    # 使用const来修饰具有const构造方法产生的对象
+    - prefer_const_constructors
+    # 对于不可变的类，需要使用const来修饰构造方法
+    - prefer_const_constructors_in_immutables
+    # 使用const 作为 @immutable 类的初始化参数
+    - prefer_const_literals_to_create_immutables
+    # 不要在可能使用的闭包中传入null
+    - null_closures
+    # 未在定义的时候初始化的变量应该指明类型
+    - prefer_typing_uninitialized_variables
+    # 布局添加空白使用sizebox代替container，sizeBox更轻量，而且可以用const
+    - sized_box_for_whitespace
+    # 复写类的==方法时，一定要判断入参的类型，以防止传入null等
+    - test_types_in_equals
+    # try catch final的 finally中不应该抛出error
+    - throw_in_finally
+    # 为空判断赋值中不要使用null: x ??= null
+    - unnecessary_null_aware_assignments
+    # 不要再函数入口处定义无法执行到的代码
+    - unreachable_from_main
+    # 仅设置颜色时使用ColoredBox组件 代替Container
+    - use_colored_box
+    # 仅在同步方法中使用BuildContext，异步方法中可能context已销毁
+    - use_build_context_synchronously
+    # 避免使用无意义的代码，无用的语句应及时删除
+    - unnecessary_statements
+
+    # -------------建议规则---------------
+
+    # 控制语句的控制体总是新起一行
+    - always_put_control_body_on_new_line
+    # 避免在条件表达式中使用bool值 condition ? true : boolExpression
+    - avoid_bool_literals_in_conditional_expressions
+    # 不要使用空的else语句
+    - avoid_empty_else
+    # 不要对未标记为@immutable的类覆盖==和hashcode方法
+    - avoid_equals_and_hash_code_on_mutable_classes
+    # 通过双引号来消除字符串中的转义字符
+    - avoid_escaping_inner_quotes
+    # 在常量类中避免进行初始化
+    - avoid_field_initializers_in_const_classes
+    # 不要显式的初始化一个变量为null
+    - avoid_init_to_null
+    # 重写==运算符时不要用来判断是否为null, 由于null是一种特殊类型，没有类可以与它等效。因此，检查另一个实例是否为空是多余的
+    - avoid_null_checks_in_equality_operators
+    # 不要重复设置参数的值
+    - avoid_redundant_argument_values
+    # 相对引用中不使用lib/
+    - avoid_relative_lib_imports
+    # 不要用级联表达式调用方法
+    - avoid_single_cascade_in_expression_statements
+    # 有一些dart:io库中的方法异步方法比同步方法慢很多，尽量使用同步方法
+    - avoid_slow_async_io
+    # 不要在初始化方法中定义没必要的参数
+    - avoid_unused_constructor_parameters
+    # 定义extensions 使用大驼峰命名
+    - camel_case_extensions
+    # 定义类名使用首字母大写驼峰
+    - camel_case_types
+    # 只有library文件的起始行可使用文档注释
+    - dangling_library_doc_comments
+    # 对于dart：的引用排序应该在其他引用之前
+    - directives_ordering
+    # try catch的catch不要传空block，如果有意这么做，需要添加注释ignored，或使用_参数
+    - empty_catches
+    # 文件结尾处留一行空行
+    - eol_at_end_of_file
+    # 文件名使用 _下划线命名规则
+    - file_names
+    # 使用flutter风格的TODO
+    - flutter_style_todos
+    # 当函数作为函数的参数时，显示的调用参数的call方法
+    - implicit_call_tearoffs
+    # 不要隐式的重新打开类
+    - implicit_reopen
+    # 多行的multilineString使用时要另起一行
+    - leading_newlines_in_multiline_strings
+    # 将库注释附加到库指令上，而不是附加到其他库级元素上。
+    - library_annotations
+    # library名称使用 _下划线命名规则
+    - library_names
+    # 引用库的前缀应该遵循小写字母带下划线格式
+    - library_prefixes
+    # 在换行连接字符串的时候应该加入空格
+    - missing_whitespace_between_adjacent_strings
+    # import库使用as时 不要用下划线开头
+    - no_leading_underscores_for_library_prefixes
+    # 不要使用通配符参数或变量
+    - no_wildcard_variable_uses
+    # 非常量命名使用小驼峰
+    - non_constant_identifier_names
+    # 只抛出 Exception 或者 Error或者他们子类的异常
+    - only_throw_errors # this does get disabled in a few places where we have legacy code that uses strings et al
+    # package_names使用 小写 _下划线命名规则
+    - package_names
+    # 用包名和以点分隔的路径作为库名的前缀 例子:library my_package.other;
+    - package_prefixed_library_names
+    # 不要用+连接字符串，相邻字符串会自动连接
+    - prefer_adjacent_string_concatenation
+    # 不要在构造函数体内执行 assert
+    - prefer_asserts_in_initializer_lists
+    # 使用集合字面量
+    - prefer_collection_literals
+    # 使用 ??= 代替判断 name == null
+    - prefer_conditional_assignment
+    # 通过遍历来创建map时最好使用for循环
+    - prefer_for_elements_to_map_fromIterable
+    # 遍历中需要调用function时，最好用foreach
+    - prefer_foreach
+    # 尽可能的使用函数声明
+    - prefer_function_declarations_over_variables
+    # 使用泛型类型的函数别名 typedef F = void Function();
+    - prefer_generic_function_type_aliases
+    # 使用??来作为判空进行赋值操作 v = a ?? b;
+    - prefer_if_null_operators
+    # 在列表初始化时就尽量声明全部参数，而不是后续使用add和addAll
+    - prefer_inlined_adds
+    # 使用变量来组合字符串而不是+ 例:'Hello, ${person.name} from ${person.city}.'
+    - prefer_interpolation_to_compose_strings
+    # 使用is！而不是反is
+    - prefer_is_not_operator
+    # 使用whereType按照类型过滤集合
+    - prefer_iterable_whereType
+    # 使用mixin来混入
+    - prefer_mixin
+    # 使用?.来判空 而不是if
+    - prefer_null_aware_operators
+    # 使用单引号
+    - prefer_single_quotes
+    # 尽量使用扩展运算符 ..
+    - prefer_spread_collections
+    # 在deprecation中写明信息
+    - provide_deprecation_message
+    # 使用///来作为文档注释
+    - slash_for_doc_comments
+    # 不要在字符串中使用不必要的大括号
+    - unnecessary_brace_in_string_interps
+    # 不使用没必要的break，尤其在Switch中
+    - unnecessary_breaks
+    # 不必要的构造函数名称
+    - unnecessary_constructor_name
+    # 不使用没必要的getter和setter
+    - unnecessary_getters_setters
+    # 避免使用库指令，除非它们有文档注释或注解。
+    - unnecessary_library_directive
+    # 没必要在可为空的扩展上使用?.操作符
+    - unnecessary_null_aware_operator_on_extension_on_nullable
+    # 不要使用没必要的null检测
+    - unnecessary_null_checks
+    # 不要使用没必要的overrides
+    - unnecessary_overrides
+    # 不使用没必要的小括号 a = (b);
+    - unnecessary_parenthesis
+    # string中没必要使用 \
+    - unnecessary_string_escapes
+    # string中不使用不必要的转化: String message; String o = '$message';
+    - unnecessary_string_interpolations
+    # 不要使用没必要的this
+    - unnecessary_this
+    # 不使用没必要的toList()扩展
+    - unnecessary_to_list_in_spreads
+    # 不要使用==来比较两个无关的类
+    - unrelated_type_equality_checks
+    # 使用枚举代替class
+    - use_enums
+    # 使用8位16进制数表示颜色 如:(0xFFFFFFFF)
+    - use_full_hex_values_for_flutter_colors
+    # 函数参数使用泛型语法  Iterable<T> where(bool Function(T) predicate) {}
+    - use_function_type_syntax_for_parameters
+    # 使用isEven或者isodd来判断奇偶
+    - use_is_even_rather_than_modulo
+    # 使用系统已经定义好的常量值
+    - use_named_constants
+    # 使用raw string来避免使用转义符 如：var s = r'A string with only \ and $';
+    - use_raw_strings
+    # 使用rethrow再次抛出异常
+    - use_rethrow_when_possible
+    # 在part of 关键字中使用String 如: part of '../../my_library.dart';
+    - use_string_in_part_of_directives
+    # 不要给void类型的变量赋值
+    - void_checks
+    # 不使用没必要的late
+    - unnecessary_late
+    # 类中的deprecated应该保持一致
+    - deprecated_consistency
+    # 使用setter点方法修改属性而不是直接调用方法
+    - use_setters_to_change_properties
+    # 尽量使用super初始化参数
+    - use_super_parameters
+    # 使用??来将null转换为布尔值 if (nullableBool ?? false){}
+    - use_if_null_to_convert_nulls_to_bools
+    # 不要使用重复的const
+    - unnecessary_const
+    # 不使用没必要的new 创建实例不需要用new
+    - unnecessary_new
+    # 对于初始化非空的final变量不要定义为可空类型
+    - unnecessary_nullable_for_final_variable_declarations
+    # set方法不要带返回值
+    - avoid_return_types_on_setters
+    # 总是在控制流中使用大括号来括住控制语句
+    - curly_braces_in_flow_control_structures
+    # 阻止条件控制流进入finally语句中
+    - control_flow_in_finally
+    # 使用方法isempty而不是查询它的长度
+    - prefer_is_empty
+    # 尽可能多用isNotEmpty代替判断length
+    - prefer_is_not_empty
+    # boolean值之间不要比较： if(isTrue == true) 改为if(isTrue)
+    - no_literal_bool_comparisons
+    # 判断Type不要使用ToString()
+    - avoid_type_to_string
+    # 在for each中不可变值使用final
+    - prefer_final_in_for_each
+    # if后不要使用空语句
+    - empty_statements
+    # 尽量使用final来设置变量
+    - prefer_final_locals
+    # 在String和List中优先使用contains 代替indexOf
+    - prefer_contains
+    # 尽量使用if else 而不使用三元运算符
+    - prefer_if_elements_to_conditional_expressions
+    # 私有属性设置为final
+    - prefer_final_fields
+    # 在??操作符后面避免使用null
+    - unnecessary_null_in_if_null_operators
+    # 判断语句中只进行真假的判断，而不要进行赋值等各种其他操作
+    - literal_only_boolean_expressions
+    # 公用API要提供注释
+    - package_api_docs
+    # 不要调用原始类型的转换方法： int a = 1; a.toInt();
+    - noop_primitive_operations
+    # 不使用不必要的await
+    - unnecessary_await_in_return
+    # 尽量使用const声明变量
+    - prefer_const_declarations
+    # get方法不要返回自身
+    - recursive_getters
+    # 重写的方法不要修改参数名
+    - avoid_renaming_method_parameters
+    # Switch中不要使用无效的case
+    - invalid_case_patterns
+    # 不要在库对外开放的API中使用私有类型.
+    - library_private_types_in_public_api
+    # 不要在list中连接字符串: ['a', 'b'+ 'c', 'd']
+    - no_adjacent_strings_in_list
+    # 尽可能使用初始化来给类属性赋值
+    - prefer_initializing_formals
+    # 声明参数名不要和已存在的类型相同
+    - avoid_types_as_parameter_names
+    # 在void可以使用的时候，不要使用NULL
+    - prefer_void_to_null
+    # 使用SizedBox.shrink(...) 和 SizedBox.expand(...)代替空的 SizedBox
+    - sized_box_shrink_expand
+    # 初始化参数如果是类中的属性不需要指定类型
+    - type_init_formals
+    # 构造函数不要使用大括号来括住空的初始化方法
+    - empty_constructor_bodies
+    # 严格指定参数初始化类型
+    - tighten_type_of_initializing_formals
+
+    # --------需要确认的规则---------
+    # 使用late来定义非空的私有变量 【需讨论确定，flutter2中担心不合规使用导致bug，禁用了late关键字】
+    - use_late_for_private_fields_and_variables

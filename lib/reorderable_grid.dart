@@ -70,7 +70,8 @@ class _SliverReorderableGridState
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasOverlay(context));
-    final childrenDelegate = SliverChildBuilderDelegate(
+    final SliverChildBuilderDelegate childrenDelegate =
+        SliverChildBuilderDelegate(
       _itemBuilder,
       childCount: widget.itemCount,
       findChildIndexCallback: widget.findChildIndexCallback,
@@ -93,7 +94,8 @@ class _SliverReorderableGridState
   }
 
   @override
-  _DragInfo _createDragInfo(_ReorderableItemState item, Offset position) {
+  _DragInfo _createDragInfo(
+      _ReorderableItemState<_ReorderableItem> item, Offset position) {
     return _GridDragInfo(
       item: item,
       initialPosition: position,
@@ -110,40 +112,46 @@ class _SliverReorderableGridState
   @override
   void _dragUpdateItems() {
     assert(_dragInfo != null);
-    final gapExtent = _dragInfo!.itemExtent;
+    final double gapExtent = _dragInfo!.itemExtent;
 
-    var newIndex = _insertIndex!;
-    for (final item in _items.values) {
+    int newIndex = _insertIndex!;
+    for (final _ReorderableItemState<_ReorderableItem> item in _items.values) {
       if (item._offsetAnimation != null || item.index == _dragIndex!) {
         continue;
       }
 
-      final renderBox = item.context.findRenderObject() as RenderBox;
-      final rect =
+      final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;
+      final Rect rect =
           (renderBox.localToGlobal(Offset.zero) + item.offset) & renderBox.size;
       if (rect.contains(_dragInfo!.dragPosition)) {
         newIndex = item.index;
         break;
       }
     }
-    final gridDelegate = widget.gridDelegate as HomeGridDelegate;
+    final HomeGridDelegate gridDelegate =
+        widget.gridDelegate as HomeGridDelegate;
 
     final List<GridTileOrigin> origins = List<GridTileOrigin>.from(
         (widget.gridDelegate as HomeGridDelegate).origins);
 
-    final oldOffset = origins.toPosition(gridDelegate.crossAxisCount,
-        gridDelegate.mainAxisSpacing, gridDelegate.crossAxisStride!);
+    final Map<Key, Offset> oldOffset = origins.toPosition(
+        gridDelegate.crossAxisCount,
+        gridDelegate.mainAxisSpacing,
+        gridDelegate.crossAxisStride!);
 
     if (newIndex != _insertIndex) {
       _insertIndex = newIndex;
-      final fromIndex = _dragIndex!;
-      final toIndex = _insertIndex!;
-      final origin = origins.removeAt(fromIndex);
+      final int fromIndex = _dragIndex!;
+      final int toIndex = _insertIndex!;
+      final GridTileOrigin origin = origins.removeAt(fromIndex);
       origins.insert(toIndex, origin);
 
-      final offsets = origins.toPosition(gridDelegate.crossAxisCount,
-          gridDelegate.mainAxisSpacing, gridDelegate.crossAxisStride!);
-      for (final item in _items.values) {
+      final Map<Key, Offset> offsets = origins.toPosition(
+          gridDelegate.crossAxisCount,
+          gridDelegate.mainAxisSpacing,
+          gridDelegate.crossAxisStride!);
+      for (final _ReorderableItemState<_ReorderableItem> item
+          in _items.values) {
         if (!item.mounted) {
           continue;
         }
@@ -161,8 +169,8 @@ class _SliverReorderableGridState
   }
 
   void _dropCompleted() {
-    final fromIndex = _dragIndex!;
-    final toIndex = _insertIndex!;
+    final int fromIndex = _dragIndex!;
+    final int toIndex = _insertIndex!;
     if (fromIndex != toIndex) {
       widget.onReorder.call(fromIndex, toIndex);
     }
@@ -283,7 +291,8 @@ class ReorderableGrid extends StatefulWidget {
   ///  * [maybeOf], a similar function that will return null if no
   ///    [ReorderableGrid] ancestor is found.
   static ReorderableGridState of(BuildContext context) {
-    final result = context.findAncestorStateOfType<ReorderableGridState>();
+    final ReorderableGridState? result =
+        context.findAncestorStateOfType<ReorderableGridState>();
     assert(() {
       if (result == null) {
         throw FlutterError.fromParts(<DiagnosticsNode>[
@@ -340,7 +349,8 @@ class ReorderableGrid extends StatefulWidget {
 /// gridKey.currentState.cancelReorder();
 /// ```
 class ReorderableGridState extends State<ReorderableGrid> {
-  final GlobalKey<SliverReorderableState> _globalKey = GlobalKey();
+  final GlobalKey<SliverReorderableState<SliverReorderable>> _globalKey =
+      GlobalKey();
 
   /// Initiate the dragging of the item at [index] that was started with
   /// the pointer down [event].
@@ -359,7 +369,8 @@ class ReorderableGridState extends State<ReorderableGrid> {
     required PointerDownEvent event,
     required MultiDragGestureRecognizer recognizer,
   }) {
-    final state = _globalKey.currentState!;
+    final SliverReorderableState<SliverReorderable> state =
+        _globalKey.currentState!;
     state.startItemDragReorder(
         index: index,
         event: event,
@@ -439,7 +450,7 @@ extension on List<GridTileOrigin> {
     }
 
     // List<Offset> res = List<Offset>.filled(length, Offset.zero);
-    Map<Key, Offset> res = {};
+    Map<Key, Offset> res = <Key, Offset>{};
 
     final List<double> offsets = List<double>.filled(crossAxisCount, 0.0);
 
