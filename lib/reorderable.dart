@@ -397,8 +397,7 @@ abstract class SliverReorderableState<T extends SliverReorderable>
       if (childItem == item || !childItem.mounted) {
         continue;
       }
-      childItem.updateForGap(
-          _insertIndex!, _dragInfo!.itemExtent, false, _reverse);
+      childItem.updateForGap(false, _reverse);
     }
     return _dragInfo;
   }
@@ -576,13 +575,12 @@ abstract class _ReorderableItemState<T extends _ReorderableItem>
     return _targetOffset;
   }
 
-  Offset _calculateNewTargetOffset(int gapIndex, double gapExtent, bool reverse,
+  Offset _calculateNewTargetOffset(bool reverse,
       {Map<Key, Offset>? oldOffsets, Map<Key, Offset>? offsets});
 
-  void updateForGap(int gapIndex, double gapExtent, bool animate, bool reverse,
+  void updateForGap(bool animate, bool reverse,
       {Map<Key, Offset>? oldOffsets, Map<Key, Offset>? offsets}) {
-    final Offset newTargetOffset = _calculateNewTargetOffset(
-        gapIndex, gapExtent, reverse,
+    final Offset newTargetOffset = _calculateNewTargetOffset(reverse,
         oldOffsets: oldOffsets, offsets: offsets);
     if (newTargetOffset != _targetOffset) {
       _targetOffset = newTargetOffset;

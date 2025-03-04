@@ -36,7 +36,7 @@ class _ReorderableGridItem extends _ReorderableItem {
 class _ReorderableGridItemState
     extends _ReorderableItemState<_ReorderableGridItem> {
   @override
-  Offset _calculateNewTargetOffset(int gapIndex, double gapExtent, bool reverse,
+  Offset _calculateNewTargetOffset(bool reverse,
       {Map<Key, Offset>? oldOffsets, Map<Key, Offset>? offsets}) {
     if (oldOffsets == null || offsets == null) {
       return Offset.zero;
@@ -155,7 +155,7 @@ class _SliverReorderableGridState
         if (!item.mounted) {
           continue;
         }
-        item.updateForGap(newIndex, gapExtent, true, _reverse,
+        item.updateForGap(true, _reverse,
             oldOffsets: oldOffset, offsets: offsets);
       }
     }
