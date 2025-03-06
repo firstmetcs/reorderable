@@ -64,10 +64,10 @@ class SliverReorderableGrid extends SliverReorderable {
 
   @override
   SliverReorderableState<SliverReorderable> createState() =>
-      _SliverReorderableGridState();
+      SliverReorderableGridState();
 }
 
-class _SliverReorderableGridState
+class SliverReorderableGridState
     extends SliverReorderableState<SliverReorderableGrid> {
   @override
   Widget build(BuildContext context) {
@@ -181,6 +181,57 @@ class _SliverReorderableGridState
   double? crossAxisStride;
 
   double? childCrossAxisExtent;
+
+  void updateSize(Key key, GridTileOrigin org) {
+    final HomeGridDelegate gridDelegate =
+        widget.gridDelegate as HomeGridDelegate;
+
+    final List<GridTileOrigin> origins = List<GridTileOrigin>.from(
+        (widget.gridDelegate as HomeGridDelegate).origins);
+
+    final Map<Key, Offset> oldOffset = origins.toPosition(
+        gridDelegate.crossAxisCount,
+        gridDelegate.mainAxisSpacing,
+        crossAxisStride!);
+
+    GridTileOrigin? origin;
+    for (int i = 0; i < origins.length; i++) {
+      if (origins[i].key == key) {
+        origin = origins[i];
+        origins[i] = org;
+      }
+    }
+
+    final Map<Key, Offset> offsets = origins.toPosition(
+        gridDelegate.crossAxisCount,
+        gridDelegate.mainAxisSpacing,
+        crossAxisStride!);
+
+    for (final _ReorderableItemState<_ReorderableItem> item in _items.values) {
+      if (!item.mounted) {
+        continue;
+      }
+      if ((item.key as _ReorderableItemGlobalKey).subKey == key) {
+        item.updatePositioned(
+            _crossExtent(origin?.crossAxisSpan ?? 1) -
+                _crossExtent(org.crossAxisSpan),
+            (origin?.mainAxisExtent ?? 1) - org.mainAxisExtent);
+      }
+      item.updateForGap(true, _reverse,
+          oldOffsets: oldOffset, offsets: offsets);
+    }
+  }
+
+  double _crossExtent(int span) {
+    return childCrossAxisExtent! + (span - 1) * crossAxisStride!;
+  }
+
+  void resetItemSize() {
+    for (final _ReorderableItemState<_ReorderableItem> item in _items.values) {
+      item.resetPositioned();
+    }
+    super._resetItemGap();
+  }
 
   void _dragEnd(_DragInfo item) {
     setState(() {

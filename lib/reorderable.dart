@@ -555,15 +555,39 @@ abstract class _ReorderableItemState<T extends _ReorderableItem>
     }
   }
 
+  double right = 0, bottom = 0;
+
+  void updatePositioned(double x, double y) {
+    setState(() {
+      right = x;
+      bottom = y;
+    });
+  }
+
+  void resetPositioned() {
+    setState(() {
+      right = 0;
+      bottom = 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (dragging) {
-      return const SizedBox();
-    }
     _reorderableState._registerItem(this);
-    return Transform(
+    final Widget child = Transform(
       transform: Matrix4.translationValues(offset.dx, offset.dy, 0.0),
-      child: widget.child,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: <Widget>[
+          Positioned(
+            top: 0,
+            left: 0,
+            right: right,
+            bottom: bottom,
+            child: widget.child,
+          ),
+        ],
+      ),
     );
 
     if (dragging) {
@@ -697,7 +721,9 @@ class ReorderableDragStartListener extends StatelessWidget {
   Widget build(BuildContext context) {
     return Listener(
       onPointerDown: enabled
-          ? (PointerDownEvent event) => _startDragging(context, event)
+          ? (PointerDownEvent event) {
+              _startDragging(context, event);
+            }
           : null,
       child: child,
     );
