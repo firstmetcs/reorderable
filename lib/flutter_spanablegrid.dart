@@ -140,17 +140,19 @@ abstract class SpanableSliverGridDelegate extends SliverGridDelegate {
 
   double? crossAxisStride;
 
+  double? childCrossAxisExtent;
+
   @override
   SliverGridLayout getLayout(SliverConstraints constraints) {
     assert(_debugAssertIsValid());
     final double usableCrossAxisExtent =
         constraints.crossAxisExtent - crossAxisSpacing * (crossAxisCount - 1);
-    final double childCrossAxisExtent = usableCrossAxisExtent / crossAxisCount;
-    crossAxisStride = childCrossAxisExtent + crossAxisSpacing;
+    childCrossAxisExtent = usableCrossAxisExtent / crossAxisCount;
+    crossAxisStride = childCrossAxisExtent! + crossAxisSpacing;
     return SpanableSliverGridLayout(
       crossAxisCount,
-      childCrossAxisExtent,
-      childCrossAxisExtent + crossAxisSpacing,
+      childCrossAxisExtent!,
+      childCrossAxisExtent! + crossAxisSpacing,
       mainAxisSpacing,
       origins,
     );
