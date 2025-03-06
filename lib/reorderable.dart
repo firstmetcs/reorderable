@@ -716,6 +716,7 @@ class ReorderableDragStartListener extends StatelessWidget {
     required this.child,
     required this.index,
     this.enabled = true,
+    this.onDragStart,
   });
 
   /// The widget for which the application would like to respond to a tap and
@@ -730,6 +731,8 @@ class ReorderableDragStartListener extends StatelessWidget {
   /// If true, the item can be moved to another location in the list when the
   /// user taps on the child. If false, tapping on the child will be ignored.
   final bool enabled;
+
+  final void Function()? onDragStart;
 
   @override
   Widget build(BuildContext context) {
@@ -795,6 +798,7 @@ class ReorderableDelayedDragStartListener extends ReorderableDragStartListener {
     required super.index,
     super.enabled,
     this.hapticFeedbackOnStart = true,
+    super.onDragStart,
   });
 
   /// Whether haptic feedback should be triggered on drag start.
@@ -809,6 +813,7 @@ class ReorderableDelayedDragStartListener extends ReorderableDragStartListener {
         if (result != null && hapticFeedbackOnStart) {
           HapticFeedback.mediumImpact();
         }
+        onDragStart?.call();
         return result;
       };
   }
