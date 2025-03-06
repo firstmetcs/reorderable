@@ -235,9 +235,50 @@ class SliverReorderableGridState
 
   void _dragEnd(_DragInfo item) {
     setState(() {
-      _finalDropPosition = _itemOffsetAt(_dragIndex!);
+      try {
+        _finalDropPosition = _itemOffsetAt(_dragIndex!);
+      } catch (e) {}
     });
     widget.onReorderEnd?.call(_insertIndex!);
+  }
+
+  @override
+  Offset _itemOffsetAt(int index) {
+    // calculate relative position of target
+    // delegateNew[insertIndex] - delegateNew[insertIndex + 1] + (insertIndex + 1)'s localToGlobal
+
+    final HomeGridDelegate gridDelegate =
+        widget.gridDelegate as HomeGridDelegate;
+
+    final List<GridTileOrigin> origins = List<GridTileOrigin>.from(
+        (widget.gridDelegate as HomeGridDelegate).origins);
+
+    final int fromIndex = _dragIndex!;
+    final int toIndex = _insertIndex!;
+    final GridTileOrigin origin = origins.removeAt(fromIndex);
+    origins.insert(toIndex, origin);
+
+    final Map<Key, Offset> offsets = origins.toPosition(
+        gridDelegate.crossAxisCount,
+        gridDelegate.mainAxisSpacing,
+        gridDelegate.crossAxisStride ?? crossAxisStride!);
+
+    // delegateNew[insertIndex] - delegateNew[insertIndex + 1] +
+    final Offset off =
+        offsets[origins[toIndex + 1].key]! - offsets[origin.key]!;
+
+    // (insertIndex + 1)'s localToGlobal
+    final _ReorderableItemState<_ReorderableItem> item = _items.values
+        .where((_ReorderableItemState<_ReorderableItem> element) =>
+            element.widget.child.key == origins[toIndex + 1].key)
+        .first;
+
+    final RenderBox itemRenderBox =
+        item.context.findRenderObject()! as RenderBox;
+    final Offset offset =
+        itemRenderBox.localToGlobal(Offset.zero) + item._targetOffset;
+
+    return offset - off;
   }
 
   void _dropCompleted() {
