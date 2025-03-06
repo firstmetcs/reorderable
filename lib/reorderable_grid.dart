@@ -130,18 +130,17 @@ class _SliverReorderableGridState
   @override
   void _dragUpdateItems() {
     assert(_dragInfo != null);
-    final double gapExtent = _dragInfo!.itemExtent;
 
     int newIndex = _insertIndex!;
     for (final _ReorderableItemState<_ReorderableItem> item in _items.values) {
-      if (item._offsetAnimation != null || item.index == _dragIndex!) {
+      if (item._offsetAnimation != null) {
         continue;
       }
 
       final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;
       final Rect rect =
           (renderBox.localToGlobal(Offset.zero) + item.offset) & renderBox.size;
-      if (rect.contains(_dragInfo!.dragPosition)) {
+      if (rect.contains(_dragInfo!.dragPosition) && !item.dragging) {
         newIndex = item.index;
         break;
       }
