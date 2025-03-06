@@ -26,6 +26,7 @@ class _ReorderableGridItem extends _ReorderableItem {
     required super.index,
     required super.child,
     required super.capturedThemes,
+    super.shadowBuilder,
   });
 
   @override
@@ -56,6 +57,7 @@ class SliverReorderableGrid extends SliverReorderable {
     super.onReorderStart,
     super.onReorderEnd,
     super.proxyDecorator,
+    super.shadowBuilder,
   });
 
   final SliverGridDelegate gridDelegate;
@@ -104,6 +106,7 @@ class _SliverReorderableGridState
       key: _ReorderableItemGlobalKey(key, index, this),
       index: index,
       capturedThemes: InheritedTheme.capture(from: context, to: overlayContext),
+      shadowBuilder: widget.shadowBuilder,
       child: child,
     );
   }
@@ -226,6 +229,7 @@ class ReorderableGrid extends StatefulWidget {
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.restorationId,
     this.clipBehavior = Clip.hardEdge,
+    this.shadowBuilder,
   }) : assert(itemCount >= 0);
 
   /// The delegate that controls the size and position of the children.
@@ -233,6 +237,9 @@ class ReorderableGrid extends StatefulWidget {
 
   /// {@macro reorderable.itemBuilder}
   final IndexedWidgetBuilder itemBuilder;
+
+  /// {@macro reorderable.shadowBuilder}
+  final ShadowBuilder? shadowBuilder;
 
   /// {@macro reorderable.itemCount}
   final int itemCount;
@@ -434,6 +441,7 @@ class ReorderableGridState extends State<ReorderableGrid> {
             onReorderStart: widget.onReorderStart,
             onReorderEnd: widget.onReorderEnd,
             proxyDecorator: widget.proxyDecorator,
+            shadowBuilder: widget.shadowBuilder,
           ),
         ),
       ],

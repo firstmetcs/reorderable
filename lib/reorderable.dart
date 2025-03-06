@@ -66,6 +66,8 @@ typedef ReorderCallback = void Function(int oldIndex, int newIndex);
 typedef ReorderItemProxyDecorator = Widget Function(
     Widget child, int index, Animation<double> animation);
 
+typedef ShadowBuilder = Widget Function(Widget child);
+
 abstract class SliverReorderable extends StatefulWidget {
   /// Creates a sliver list that allows the user to interactively reorder its
   /// items.
@@ -81,6 +83,7 @@ abstract class SliverReorderable extends StatefulWidget {
     this.onReorderEnd,
     this.proxyDecorator,
     double? autoScrollerVelocityScalar,
+    this.shadowBuilder,
   })  : autoScrollerVelocityScalar =
             autoScrollerVelocityScalar ?? _kDefaultAutoScrollVelocityScalar,
         assert(itemCount >= 0);
@@ -160,6 +163,8 @@ abstract class SliverReorderable extends StatefulWidget {
   /// Defaults to 50 if not set or set to null.
   /// {@endtemplate}
   final double autoScrollerVelocityScalar;
+
+  final ShadowBuilder? shadowBuilder;
 
   @override
   SliverReorderableState<SliverReorderable> createState();
@@ -491,11 +496,13 @@ abstract class _ReorderableItem extends StatefulWidget {
     required this.index,
     required this.child,
     required this.capturedThemes,
+    this.shadowBuilder,
   });
 
   final int index;
   final Widget child;
   final CapturedThemes capturedThemes;
+  final ShadowBuilder? shadowBuilder;
 
   @override
   _ReorderableItemState<_ReorderableItem> createState();
@@ -558,6 +565,14 @@ abstract class _ReorderableItemState<T extends _ReorderableItem>
       transform: Matrix4.translationValues(offset.dx, offset.dy, 0.0),
       child: widget.child,
     );
+
+    if (dragging) {
+      if (widget.shadowBuilder != null) {
+        return widget.shadowBuilder!(child);
+      }
+      return const SizedBox();
+    }
+    return child;
   }
 
   @override
