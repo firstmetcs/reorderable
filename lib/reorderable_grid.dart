@@ -83,6 +83,21 @@ class _SliverReorderableGridState
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final HomeGridDelegate gridDelegate =
+          widget.gridDelegate as HomeGridDelegate;
+      if (gridDelegate.crossAxisStride != null) {
+        crossAxisStride = gridDelegate.crossAxisStride;
+      }
+      if (gridDelegate.childCrossAxisExtent != null) {
+        childCrossAxisExtent = gridDelegate.childCrossAxisExtent;
+      }
+    });
+  }
+
+  @override
   _ReorderableItem _createReorderableItem(
       Key key, int index, BuildContext overlayContext, Widget child) {
     return _ReorderableGridItem(
@@ -137,7 +152,7 @@ class _SliverReorderableGridState
     final Map<Key, Offset> oldOffset = origins.toPosition(
         gridDelegate.crossAxisCount,
         gridDelegate.mainAxisSpacing,
-        gridDelegate.crossAxisStride!);
+        gridDelegate.crossAxisStride ?? crossAxisStride!);
 
     if (newIndex != _insertIndex) {
       _insertIndex = newIndex;
@@ -149,7 +164,7 @@ class _SliverReorderableGridState
       final Map<Key, Offset> offsets = origins.toPosition(
           gridDelegate.crossAxisCount,
           gridDelegate.mainAxisSpacing,
-          gridDelegate.crossAxisStride!);
+          gridDelegate.crossAxisStride ?? crossAxisStride!);
       for (final _ReorderableItemState<_ReorderableItem> item
           in _items.values) {
         if (!item.mounted) {
@@ -160,6 +175,10 @@ class _SliverReorderableGridState
       }
     }
   }
+
+  double? crossAxisStride;
+
+  double? childCrossAxisExtent;
 
   void _dragEnd(_DragInfo item) {
     setState(() {
