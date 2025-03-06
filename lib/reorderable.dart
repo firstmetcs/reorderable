@@ -546,6 +546,9 @@ abstract class _ReorderableItemState<T extends _ReorderableItem>
 
   bool _dragging = false;
 
+  // temp index during drag
+  int? tidx;
+
   @override
   void initState() {
     _reorderableState = SliverReorderable.of(context);

@@ -130,6 +130,8 @@ class SliverReorderableGridState
     );
   }
 
+  Key? lastHit;
+
   @override
   void _dragUpdateItems() {
     assert(_dragInfo != null);
@@ -144,8 +146,12 @@ class SliverReorderableGridState
       final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;
       final Rect rect =
           (renderBox.localToGlobal(Offset.zero) + item.offset) & renderBox.size;
-      if (rect.contains(_dragInfo!.dragPosition) && !item.dragging) {
-        newIndex = item.index;
+      if (rect.contains(_dragInfo!.dragPosition)) {
+        if (item.widget.child.key == lastHit) {
+          continue;
+        }
+        lastHit = item.widget.child.key;
+        newIndex = item.tidx ?? item.index;
         break;
       }
     }
@@ -173,6 +179,8 @@ class SliverReorderableGridState
           gridDelegate.crossAxisStride ?? crossAxisStride!);
       for (final _ReorderableItemState<_ReorderableItem> item
           in _items.values) {
+        item.tidx = origins.indexWhere(
+            (GridTileOrigin element) => element.key == item.widget.child.key);
         if (!item.mounted) {
           continue;
         }
