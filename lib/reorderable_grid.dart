@@ -27,6 +27,7 @@ class _ReorderableGridItem extends _ReorderableItem {
     required super.child,
     required super.capturedThemes,
     super.shadowBuilder,
+    super.lockedKeys,
   });
 
   @override
@@ -58,6 +59,7 @@ class SliverReorderableGrid extends SliverReorderable {
     super.onReorderEnd,
     super.proxyDecorator,
     super.shadowBuilder,
+    super.lockedKeys,
   });
 
   final SliverGridDelegate gridDelegate;
@@ -108,6 +110,7 @@ class SliverReorderableGridState
       capturedThemes: InheritedTheme.capture(from: context, to: overlayContext),
       shadowBuilder: widget.shadowBuilder,
       child: child,
+      lockedKeys: widget.lockedKeys,
     );
   }
 
@@ -133,7 +136,8 @@ class SliverReorderableGridState
 
     int newIndex = _insertIndex!;
     for (final _ReorderableItemState<_ReorderableItem> item in _items.values) {
-      if (item._offsetAnimation != null) {
+      if (item._offsetAnimation != null ||
+          widget.lockedKeys.contains(item.widget.child.key)) {
         continue;
       }
 

@@ -84,6 +84,7 @@ abstract class SliverReorderable extends StatefulWidget {
     this.proxyDecorator,
     double? autoScrollerVelocityScalar,
     this.shadowBuilder,
+    this.lockedKeys = _defaultLockedKeys,
   })  : autoScrollerVelocityScalar =
             autoScrollerVelocityScalar ?? _kDefaultAutoScrollVelocityScalar,
         assert(itemCount >= 0);
@@ -165,6 +166,15 @@ abstract class SliverReorderable extends StatefulWidget {
   final double autoScrollerVelocityScalar;
 
   final ShadowBuilder? shadowBuilder;
+
+  /// Specify keys for [children] that should not be draggable or movable.
+  ///
+  /// If you have e.g. [key0, key1, key2], then it means that your [children]
+  /// on the first, second and third position cannot be dragged. Furthermore if
+  /// you drag and drop, they won't change their position.
+  ///
+  /// Default value: <Key>[]
+  final List<Key> lockedKeys;
 
   @override
   SliverReorderableState<SliverReorderable> createState();
@@ -490,6 +500,8 @@ abstract class SliverReorderableState<T extends SliverReorderable>
   }
 }
 
+const List<Key> _defaultLockedKeys = <Key>[];
+
 abstract class _ReorderableItem extends StatefulWidget {
   const _ReorderableItem({
     required super.key,
@@ -497,12 +509,14 @@ abstract class _ReorderableItem extends StatefulWidget {
     required this.child,
     required this.capturedThemes,
     this.shadowBuilder,
+    this.lockedKeys = _defaultLockedKeys,
   });
 
   final int index;
   final Widget child;
   final CapturedThemes capturedThemes;
   final ShadowBuilder? shadowBuilder;
+  final List<Key> lockedKeys;
 
   @override
   _ReorderableItemState<_ReorderableItem> createState();
