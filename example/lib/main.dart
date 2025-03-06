@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:reorderable_plus/flutter_spanablegrid.dart';
 import 'package:reorderable_plus/reorderable.dart' as reorder;
+import 'package:reorderable_plus/reorderable.dart';
 
 void main() {
   runApp(const MyApp());
@@ -57,102 +59,14 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: const Column(
-        children: [
-          Expanded(
-            flex: 5,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(child: _ReorderListView()),
-                      Text('List', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(child: _ReorderGridView()),
-                      Text('Grid', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(child: SizedBox.shrink()),
-        ],
-      ),
-    );
-  }
-}
-
-class _ReorderListView extends StatefulWidget {
-  const _ReorderListView({Key? key}) : super(key: key);
-
-  @override
-  State<_ReorderListView> createState() => _ReorderListViewState();
-}
-
-class _ReorderListViewState extends State<_ReorderListView> {
-  final data = List.generate(11, (index) => index);
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomScrollView(
-      // reverse: true,
-      slivers: [
-        reorder.SliverReorderableList(
-          itemBuilder: (context, int index) {
-            final item = data[index];
-            final height = 48.0 + item * 10.0;
-            return reorder.ReorderableDelayedDragStartListener(
-              key: ValueKey(item),
-              index: index,
-              // enabled: item % 2 == 0,
-              child: Container(
-                height: height,
-                alignment: Alignment.center,
-                color: (item % 2 == 0 ? Colors.green : Colors.amber).withOpacity(0.6),
-                child: Text('$item: $height'),
-              ),
-            );
-          },
-          itemCount: data.length,
-          onReorder: (oldIndex, newIndex) {
-            debugPrint('onReorder: $oldIndex -> $newIndex');
-            final item = data.removeAt(oldIndex);
-            data.insert(newIndex, item);
-          },
-          onReorderStart: (p0) {
-            debugPrint('onReorderStart');
-          },
-          onReorderEnd: (p0) {
-            debugPrint('onReorderEnd');
-          },
-          proxyDecorator: (child, index, animation) {
-            return Container(
-              color: Colors.red.withOpacity(0.3),
-              height: 160,
-              child: child,
-            );
-          },
-        ),
-      ],
-    );
+    return _ReorderGridView(title: widget.title);
   }
 }
 
 class _ReorderGridView extends StatefulWidget {
-  const _ReorderGridView({Key? key}) : super(key: key);
+  const _ReorderGridView({Key? key, required this.title}) : super(key: key);
+
+  final String title;
 
   @override
   State<_ReorderGridView> createState() => _ReorderGridViewState();
@@ -161,47 +75,109 @@ class _ReorderGridView extends StatefulWidget {
 class _ReorderGridViewState extends State<_ReorderGridView> {
   final data = List.generate(30, (index) => index);
 
+  List<GridTileOrigin> list = [
+    GridTileOrigin(2, 140, const ValueKey(1)),
+    GridTileOrigin(2, 64, const ValueKey(2)),
+    GridTileOrigin(2, 64, const ValueKey(3)),
+    GridTileOrigin(2, 64, const ValueKey(4)),
+    GridTileOrigin(2, 64, const ValueKey(5)),
+    GridTileOrigin(2, 140, const ValueKey(6)),
+    GridTileOrigin(2, 64, const ValueKey(7)),
+    GridTileOrigin(2, 64, const ValueKey(8)),
+    GridTileOrigin(2, 140, const ValueKey(9)),
+    GridTileOrigin(2, 140, const ValueKey(11)),
+    GridTileOrigin(2, 64, const ValueKey(12)),
+    GridTileOrigin(2, 64, const ValueKey(13)),
+    GridTileOrigin(2, 64, const ValueKey(14)),
+    GridTileOrigin(2, 64, const ValueKey(15)),
+    GridTileOrigin(2, 140, const ValueKey(16)),
+    GridTileOrigin(2, 64, const ValueKey(17)),
+    GridTileOrigin(2, 64, const ValueKey(18)),
+    GridTileOrigin(2, 140, const ValueKey(19)),
+  ];
+
+  GlobalKey<SliverReorderableGridState> key = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      // reverse: true,
-      slivers: [
-        reorder.SliverReorderableGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 0.618),
-          itemBuilder: (context, int index) {
-            final item = data[index];
-            return reorder.ReorderableDelayedDragStartListener(
-              key: ValueKey(item),
-              index: index,
-              // enabled: item % 2 == 0,
-              child: Container(
-                alignment: Alignment.center,
-                color: (item % 2 == 0 ? Colors.green : Colors.amber).withOpacity(0.6),
-                child: Text('$item'),
-              ),
-            );
-          },
-          itemCount: data.length,
-          onReorder: (oldIndex, newIndex) {
-            debugPrint('onReorder: $oldIndex -> $newIndex');
-            final item = data.removeAt(oldIndex);
-            data.insert(newIndex, item);
-          },
-          onReorderStart: (p0) {
-            debugPrint('onReorderStart');
-          },
-          onReorderEnd: (p0) {
-            debugPrint('onReorderEnd');
-          },
-          proxyDecorator: (child, index, animation) {
-            return Container(
-              color: Colors.red.withOpacity(0.3),
-              height: 160,
-              child: child,
-            );
-          },
-        ),
-      ],
+    return Scaffold(
+      appBar: AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: GestureDetector(
+            onTap: () {
+              key.currentState?.updateSize(
+                const ValueKey(2),
+                GridTileOrigin(4, 140, const ValueKey(2)),
+              );
+            },
+            onDoubleTap: () {
+              list = [
+                ...list,
+                GridTileOrigin(2, 64, const ValueKey(5)),
+              ];
+              key.currentState?.resetItemSize();
+              setState(() {});
+            },
+            child: const Icon(Icons.add)),
+        onPressed: () {
+          key.currentState?.updateSize(
+            const ValueKey(2),
+            GridTileOrigin(2, 140, const ValueKey(2)),
+          );
+        },
+      ),
+      body: CustomScrollView(
+        // reverse: true,
+        slivers: [
+          reorder.SliverReorderableGrid(
+            key: key,
+            gridDelegate: HomeGridDelegate([...list]),
+            itemBuilder: (context, int index) {
+              final item = list[index];
+              return reorder.ReorderableDelayedDragStartListener(
+                key: item.key,
+                index: index,
+                // enabled: item % 2 == 0,
+                child: Container(
+                  alignment: Alignment.center,
+                  color: Colors.green.withOpacity(0.6),
+                  child: Text('${item.key}'),
+                ),
+              );
+            },
+            itemCount: list.length,
+            onReorder: (oldIndex, newIndex) {
+              debugPrint('onReorder: $oldIndex -> $newIndex');
+              final origin = list.removeAt(oldIndex);
+              list.insert(newIndex, origin);
+              setState(() {});
+            },
+            onReorderStart: (p0) {
+              debugPrint('onReorderStart');
+            },
+            onReorderEnd: (p0) {
+              debugPrint('onReorderEnd');
+            },
+            proxyDecorator: (child, index, animation) {
+              return Container(
+                color: Colors.red.withOpacity(0.3),
+                height: 160,
+                child: child,
+              );
+            },
+            shadowBuilder: (Widget child) {
+              return Opacity(
+                opacity: 0.2,
+                child: child,
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
