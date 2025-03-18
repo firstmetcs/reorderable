@@ -130,8 +130,6 @@ class SliverReorderableGridState
     );
   }
 
-  Key? lastHit;
-
   @override
   void _dragUpdateItems() {
     assert(_dragInfo != null);
@@ -147,10 +145,9 @@ class SliverReorderableGridState
       final Rect rect =
           (renderBox.localToGlobal(Offset.zero) + item.offset) & renderBox.size;
       if (rect.contains(_dragInfo!.dragPosition)) {
-        if (item.widget.child.key == lastHit) {
+        if (_dragInfo!.item.tidx == (item.tidx ?? 0) - 1) {
           continue;
         }
-        lastHit = item.widget.child.key;
         newIndex = item.tidx ?? item.index;
         break;
       }

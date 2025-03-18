@@ -828,7 +828,7 @@ typedef _DragItemCallback = void Function(_DragInfo item);
 
 abstract class _DragInfo extends Drag {
   _DragInfo({
-    required _ReorderableItemState<_ReorderableItem> item,
+    required this.item,
     Offset initialPosition = Offset.zero,
     this.scrollDirection = Axis.vertical,
     this.onUpdate,
@@ -869,6 +869,7 @@ abstract class _DragInfo extends Drag {
   late CapturedThemes capturedThemes;
   ScrollableState? scrollable;
   AnimationController? _proxyAnimation;
+  _ReorderableItemState<_ReorderableItem> item;
 
   void dispose() {
     _proxyAnimation?.dispose();
