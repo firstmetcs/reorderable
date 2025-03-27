@@ -136,6 +136,11 @@ class SliverReorderableGridState
 
     int newIndex = _insertIndex!;
     for (final _ReorderableItemState<_ReorderableItem> item in _items.values) {
+      if (item._offsetAnimation != null) {
+        return;
+      }
+    }
+    for (final _ReorderableItemState<_ReorderableItem> item in _items.values) {
       if (item._offsetAnimation != null ||
           widget.lockedKeys.contains(item.widget.child.key)) {
         continue;
@@ -145,9 +150,6 @@ class SliverReorderableGridState
       final Rect rect =
           (renderBox.localToGlobal(Offset.zero) + item.offset) & renderBox.size;
       if (rect.contains(_dragInfo!.dragPosition)) {
-        if (_dragInfo!.item.tidx == (item.tidx ?? 0) - 1) {
-          continue;
-        }
         newIndex = item.tidx ?? item.index;
         break;
       }
